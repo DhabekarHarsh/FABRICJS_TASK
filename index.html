@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FABRIC</title>
+    <style>
+      #c {
+        /* margin: 20%; */
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <input type="file" id="imageInput" accept="image/*" />
+    <canvas id="c" height="600px" width="1300px">
+    
+      <img src="./img.jpg" alt="" id="demo" />
+    </canvas>
+    <script src="./fabric.js"></script>
+    <script>
+      var canvas = new fabric.Canvas("c");
+
+      var imgElement = document.getElementById("demo");
+      var imgInstance = new fabric.Image(imgElement, {
+        
+        left: 0 ,
+        right : 0 ,
+        opacity: 1,
+      });
+      canvas.add(imgInstance);
+      canvas.centerObject(imgInstance);
+      canvas.renderAll();
+
+      let imgInput = document.getElementById("imageInput");
+      imgInput.addEventListener("change", function (e) {
+        if (e.target.files) {
+          let imageFile = e.target.files[0]; 
+          var reader = new FileReader();
+          reader.readAsDataURL(imageFile);
+          reader.onloadend = function (e) {
+            var imgElement = document.getElementById("demo");
+            imgElement.src = e.target.result;
+            canvas.add(imgInstance);
+            
+        };
+    }
+
+        function resizeCanvas(){
+          var img = document.getElementById('imageInput'); 
+          var width = img.clientWidth;
+          var height = img.clientHeight;
+
+          var canvas = document.getElementById('canvas'); 
+          canvas.style.width = width;
+          canvas.style.height = height;
+        }
+});
+
+      canvas.on("mouse:wheel", function (opt) {
+        var delta = opt.e.deltaY;
+        var zoom = canvas.getZoom();
+        zoom *= 0.999 ** delta;
+        if (zoom > 20) zoom = 20;
+       
+        if (zoom < 1) zoom = 1;
+        canvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
+        opt.e.preventDefault();
+        opt.e.stopPropagation();
+        var vpt = this.viewportTransform;
+        if (zoom < 400 / 1000) {
+          vpt[4] = 200 - (1000 * zoom) / 2;
+          vpt[5] = 200 - (1000 * zoom) / 2;
+        } else {
+          if (vpt[4] >= 0) {
+            vpt[4] = 0;
+          } else if (vpt[4] < canvas.getWidth() - 1000 * zoom) {
+            vpt[4] = canvas.getWidth() - 1000 * zoom;
+          }
+          if (vpt[5] >= 0) {
+            vpt[5] = 0;
+          } else if (vpt[5] < canvas.getHeight() - 1000 * zoom) {
+            vpt[5] = canvas.getHeight() - 1000 * zoom;
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
